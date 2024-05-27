@@ -4,16 +4,20 @@
 #include "addons/TokenHelper.h"
 #include "addons/RTDBHelper.h"
  
-int smallRawPin = D1;
-int mediumRawPin = D2;
-int largeRawPin = D3;
-int smallRipePin = D4;
-int mediumRipePin = D5;
-int largeRipePin = D6;
+int smallRawPin = D0;
+int mediumRawPin = D1;
+int largeRawPin = D2;
+int smallRipePin = D3;
+int mediumRipePin = D4;
+int largeRipePin = D5;
+
+#define RPWM  D6 // Right PWM pin (EN_R)
+#define LPWM  D7 // Left PWM pin (EN_L)
+#define R_EN  D8  // Right enable pin
 
 #define WIFI_SSID "I'm in!"
 #define WIFI_PASSWORD "connected"
-#define API_KEY "api key"
+#define API_KEY "ipi key"
 #define DATABASE_URL "firebase url" 
  
 FirebaseData fbdo;
@@ -36,6 +40,7 @@ boolean largeRipeState = true;
 
 unsigned long sendDataPrevMillis = 0;
 bool signupOK = false;
+int motor = 0;
 
 void setup()  {  
   Serial.begin(9600);  
@@ -45,7 +50,10 @@ void setup()  {
   pinMode(smallRipePin, INPUT);  
   pinMode(mediumRipePin, INPUT);  
   pinMode(largeRipePin, INPUT);  
-
+  pinMode(RPWM, OUTPUT);
+  pinMode(LPWM, OUTPUT);
+  pinMode(R_EN, OUTPUT);
+  digitalWrite(R_EN, HIGH);
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
     Serial.print("Connecting to Wi-Fi");
     while (WiFi.status() != WL_CONNECTED){
@@ -293,6 +301,19 @@ void loop()  {
     smallRipeChecker();
     mediumRipeChecker();
     largeRipeChecker();
+
+    if (Firebase.RTDB.getInt(&fbdo, "Controls/1/motor")){
+      if (fbdo.dataType() == "int"){
+      motor = fbdo.intData();
+      digitalWrite(LPWM, LOW);  // Disable reverse direction
+      analogWrite(RPWM, motor);   // Set speed (0-255), 128 for half speed
+      Serial.print("Motor: ");
+      Serial.println(motor);
+      }
+    }
+    else {
+      Serial.println("FAILED: " + fbdo.errorReason());
+    }
 
   }
 }  
