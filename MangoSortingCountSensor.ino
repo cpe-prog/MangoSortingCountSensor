@@ -17,8 +17,8 @@ int largeRipePin = D5;
 
 #define WIFI_SSID "I'm in!"
 #define WIFI_PASSWORD "connected"
-#define API_KEY "ipi key"
-#define DATABASE_URL "firebase url" 
+#define API_KEY "AIzaSyABrBOY7_RhZbVjaNqbvYNKLYhuzS6W9sw"
+#define DATABASE_URL "mangosorting-default-rtdb.firebaseio.com/" 
  
 FirebaseData fbdo;
 FirebaseAuth auth;
@@ -101,20 +101,6 @@ void smallRaw() {
       smallRawState = true;
     }
 }
-void smallRawChecker() {
-    if (Firebase.RTDB.getInt(&fbdo, "raw/1/small")) {
-      if (fbdo.dataType() == "int") {
-        int firebaseValue = fbdo.intData();
-        if (firebaseValue == 0 && smallRawCount != 0) {
-          smallRawCount = 0;
-          Serial.println("Small reset to 0 from Firebase");
-        }
-      }
-    } else {
-      Serial.println("Failed to get count from Firebase");
-      Serial.println("REASON: " + fbdo.errorReason());
-    }
-}
 
 void mediumRaw() {
     if (!digitalRead(mediumRawPin) && mediumRawState) {
@@ -132,20 +118,6 @@ void mediumRaw() {
 
     if (digitalRead(mediumRawPin )) {
       mediumRawState = true;
-    }
-}
-void mediumRawChecker() {
-    if (Firebase.RTDB.getInt(&fbdo, "raw/1/medium")) {
-      if (fbdo.dataType() == "int") {
-        int firebaseValue = fbdo.intData();
-        if (firebaseValue == 0 && mediumRawCount != 0) {
-          mediumRawCount = 0;
-          Serial.println("Medium reset to 0 from Firebase");
-        }
-      }
-    } else {
-      Serial.println("Failed to get count from Firebase");
-      Serial.println("REASON: " + fbdo.errorReason());
     }
 }
 
@@ -167,20 +139,6 @@ void largeRaw() {
       largeRawState = true;
     }
 }
-void largeRawChecker() {
-    if (Firebase.RTDB.getInt(&fbdo, "raw/1/large")) {
-      if (fbdo.dataType() == "int") {
-        int firebaseValue = fbdo.intData();
-        if (firebaseValue == 0 && largeRawCount != 0) {
-          largeRawCount = 0;
-          Serial.println("Large reset to 0 from Firebase");
-        }
-      }
-    } else {
-      Serial.println("Failed to get count from Firebase");
-      Serial.println("REASON: " + fbdo.errorReason());
-    }
-}
 
 void smallRipe() {
     if (!digitalRead(smallRipePin) && smallRipeState) {
@@ -199,20 +157,6 @@ void smallRipe() {
       smallRipeState = true;
     }
 }
-void smallRipeChecker() {
-    if (Firebase.RTDB.getInt(&fbdo, "ripe/1/small")) {
-      if (fbdo.dataType() == "int") {
-        int firebaseValue = fbdo.intData();
-        if (firebaseValue == 0 && smallRipeCount != 0) {
-          smallRipeCount = 0;
-          Serial.println("Small reset to 0 from Firebase");
-        }
-      }
-    } else {
-      Serial.println("Failed to get count from Firebase");
-      Serial.println("REASON: " + fbdo.errorReason());
-    }
-}
 
 void mediumRipe() {
     if (!digitalRead(mediumRipePin) && mediumRipeState) {
@@ -229,20 +173,6 @@ void mediumRipe() {
     }
     if (digitalRead(mediumRipePin )) {
       mediumRipeState = true;
-    }
-}
-void mediumRipeChecker() {
-    if (Firebase.RTDB.getInt(&fbdo, "ripe/1/medium")) {
-      if (fbdo.dataType() == "int") {
-        int firebaseValue = fbdo.intData();
-        if (firebaseValue == 0 && mediumRipeCount != 0) {
-          mediumRipeCount = 0;
-          Serial.println("Medium reset to 0 from Firebase");
-        } 
-      }
-    } else {
-      Serial.println("Failed to get count from Firebase");
-      Serial.println("REASON: " + fbdo.errorReason());
     }
 }
 
@@ -264,13 +194,32 @@ void largeRipe() {
     }
 }
 
-void largeRipeChecker() {
-    if (Firebase.RTDB.getInt(&fbdo, "ripe/1/large")) {
+void RipeChecker() {
+    if (Firebase.RTDB.getInt(&fbdo, "ripe/1/checker")) {
       if (fbdo.dataType() == "int") {
         int firebaseValue = fbdo.intData();
-        if (firebaseValue == 0 && largeRipeCount != 0) {
-          largeRipeCount = 0;
-          Serial.println("Large reset to 0 from Firebase");
+        if (firebaseValue == 0 && smallRipeCount != 0 && mediumRipeCount != 0 && largeRipeCount!= 0) {
+          smallRipeCount = 0; 
+          mediumRipeCount = 0;
+          largeRipeCount = 0; 
+          Serial.println("Ripe reset to 0 from Firebase");
+        }
+      }
+    } else {
+      Serial.println("Failed to get count from Firebase");
+      Serial.println("REASON: " + fbdo.errorReason());
+    }
+}
+
+void RawChecker() {
+    if (Firebase.RTDB.getInt(&fbdo, "ripe/1/checker")) {
+      if (fbdo.dataType() == "int") {
+        int firebaseValue = fbdo.intData();
+        if (firebaseValue == 0 && smallRawCount != 0 && mediumRawCount != 0 && largeRawCount != 0) {
+          smallRawCount = 0;  
+          mediumRawCount = 0; 
+          largeRawCount = 0;  
+          Serial.println("Raw reset to 0 from Firebase");
         }
       }
     } else {
@@ -295,12 +244,8 @@ void loop()  {
 
     //Check if value from firebase is empty of have value
 
-    smallRawChecker();
-    mediumRawChecker();
-    largeRawChecker();
-    smallRipeChecker();
-    mediumRipeChecker();
-    largeRipeChecker();
+    RawChecker();
+    RipeChecker();
 
     if (Firebase.RTDB.getInt(&fbdo, "Controls/1/motor")){
       if (fbdo.dataType() == "int"){
