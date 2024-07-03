@@ -15,10 +15,10 @@ int largeRipePin = D5;
 #define LPWM  D7 // Left PWM pin (EN_L)
 #define R_EN  D8  // Right enable pin
 
-#define WIFI_SSID "I'm in!"
-#define WIFI_PASSWORD "connected"
-#define API_KEY "AIzaSyABrBOY7_RhZbVjaNqbvYNKLYhuzS6W9sw"
-#define DATABASE_URL "mangosorting-default-rtdb.firebaseio.com/" 
+#define WIFI_SSID "wifi"
+#define WIFI_PASSWORD "password"
+#define API_KEY "api key"
+#define DATABASE_URL "database url" 
  
 FirebaseData fbdo;
 FirebaseAuth auth;
